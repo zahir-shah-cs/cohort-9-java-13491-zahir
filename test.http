@@ -1,0 +1,8 @@
+POST http://localhost:8080/api/contacts
+Content-Type: application/json
+
+{
+  "name": "Ali Khan",
+  "email": "[ali@example.com](mailto:ali@example.com)",
+  "phone": "03001234567"
+}
