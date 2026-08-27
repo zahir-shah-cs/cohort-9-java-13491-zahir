@@ -22,9 +22,7 @@ const Navbar = () => {
   return (
     <nav className="border-b border-gray-200 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
         <div className="flex h-16 items-center justify-between">
-
           {/* Logo */}
           <Link
             to="/"
@@ -36,7 +34,6 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden items-center gap-6 md:flex lg:gap-8">
-
             {/* Home */}
             <Link
               to="/"
@@ -80,6 +77,13 @@ const Navbar = () => {
                   className="text-sm font-medium text-gray-700 transition hover:text-blue-600"
                 >
                   Manage Contacts
+                </Link>
+
+                <Link
+                  to="/profile"
+                  className="text-sm font-medium text-gray-700 hover:text-blue-600"
+                >
+                  Profile
                 </Link>
 
                 <span className="max-w-[180px] truncate text-sm font-medium text-gray-600">
@@ -140,9 +144,7 @@ const Navbar = () => {
         {/* Mobile / Tablet Menu */}
         {isMenuOpen && (
           <div className="border-t border-gray-100 py-4 md:hidden">
-
             <div className="flex flex-col gap-1">
-
               {/* Home */}
               <Link
                 to="/"
@@ -193,6 +195,13 @@ const Navbar = () => {
                     Manage Contacts
                   </Link>
 
+                  <Link
+                    to="/profile"
+                    className="rounded-lg px-3 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+                  >
+                    Profile
+                  </Link>
+
                   {/* User */}
                   <div className="mt-2 border-t border-gray-100 px-3 pt-4">
                     <p className="mb-3 truncate text-sm font-medium text-gray-600">
@@ -211,7 +220,6 @@ const Navbar = () => {
             </div>
           </div>
         )}
-
       </div>
     </nav>
   );

@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "name": "Ali Khan",
-  "email": "[ali@example.com](mailto:ali@example.com)",
+  "email": "ali@example.com",
   "phone": "03001234567"
 }
 
@@ -22,6 +22,29 @@ POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "john@example.com",
-  "password": "123456"
+  "email": "user@gmail.com",
+  "password": "password"
 }
+
+###
+GET http://localhost:8080/api/user-contacts
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNzg3ODYyNDA0LCJleHAiOjE3ODc4NjYwMDR9.r7qSDlRYbZfGmGQEkorGAuRNvLyB41J6fKxoPbq-1UWX8LAPE0inAVMBDuNrT1PU
+
+
+###
+POST http://localhost:8080/api/user-contacts
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNzg3ODYyNDA0LCJleHAiOjE3ODc4NjYwMDR9.r7qSDlRYbZfGmGQEkorGAuRNvLyB41J6fKxoPbq-1UWX8LAPE0inAVMBDuNrT1PU
+
+{
+  "name": "same Johnson",
+  "email": "same@gmail.com",
+  "phone": "03342345678"
+}
+
+
+###
+GET http://localhost:8080/api/profile
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyQGdtYWlsLmNvbSIsImlhdCI6MTc4Nzg2NjQyNiwiZXhwIjoxNzg3ODcwMDI2fQ.mk86El9nnUacIw_nYdg5tNHTDcwuhR4SlradPrWZDXTsJZkgCZTgIYqXhHXMp2Vt

@@ -1,11 +1,15 @@
-import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home.jsx";
+
+import Home from "./pages/public/Home.jsx";
+import ContactForm from "./pages/public/ContactForm.jsx";
+
+import Login from "./pages/auth/Login.jsx";
+import Register from "./pages/auth/Register.jsx";
+
+import ContactList from "./pages/ContactManage/ContactList.jsx";
+import Profile from "./pages/profile/Profile";
+
 import Navbar from "./components/Navbar.jsx";
-import ContactForm from "./pages/ContactForm.jsx";
-import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx";
-import ContactList from "./pages/ContactList.jsx";
 import ProtectedRoutes from "./components/ProtectedRoutes.jsx";
 
 function App() {
@@ -27,6 +31,14 @@ function App() {
           }
         />
 
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoutes>
+              <Profile />
+            </ProtectedRoutes>
+          }
+        />
         
       </Routes>
     </>

@@ -39,7 +39,8 @@ public class SecurityConfig {
 
                         // Public endpoints
                         .requestMatchers(
-                                "/api/auth/**"
+                                "/api/auth/**",
+                                "/api/contacts"
                         ).permitAll()
 
                         // Everything else requires JWT

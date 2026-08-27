@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import contactService from "../services/contactService";
+import api from "../../Utils/Api.js";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -24,11 +24,9 @@ const ContactForm = () => {
 
     try {
       setLoading(true);
-
-      const response = await contactService.createContact(formData);
-
-      console.log("Contact created:", response);
-
+      
+      const response = await api.post("/contacts", formData);
+      // console.log("Contact created:", response);
       alert("Contact created successfully!");
 
       setFormData({
@@ -36,12 +34,11 @@ const ContactForm = () => {
         email: "",
         phone: "",
       });
-    } catch (error) {
-      console.error("Error creating contact:", error);
 
+    } catch (error) {
+      // console.error("Error creating contact:", error);
       alert("Failed to create contact.");
 
-      
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,7 @@
 package com.zahir.contactmanagement.security;
 
+import com.zahir.contactmanagement.entity.User;
+import com.zahir.contactmanagement.repository.UserRepository;
 import com.zahir.contactmanagement.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,9 +19,14 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(
+            JwtService jwtService,
+            UserRepository userRepository
+    ) {
         this.jwtService = jwtService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -32,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader =
                 request.getHeader("Authorization");
 
+        // No JWT
         if (authHeader == null ||
                 !authHeader.startsWith("Bearer ")) {
 
@@ -39,24 +47,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Extract token
         String token =
                 authHeader.substring(7);
 
+        // Validate token
         if (jwtService.isTokenValid(token)) {
 
+            // Get email from JWT
             String email =
                     jwtService.extractEmail(token);
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(
-                            email,
-                            null,
-                            Collections.emptyList()
-                    );
+            // Find user
+            User user =
+                    userRepository
+                            .findByEmail(email)
+                            .orElse(null);
 
-            SecurityContextHolder
-                    .getContext()
-                    .setAuthentication(authentication);
+            if (user != null) {
+
+                // Authenticate USER, not email
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                Collections.emptyList()
+                        );
+
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(request, response);
