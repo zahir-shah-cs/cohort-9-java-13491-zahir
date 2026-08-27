@@ -6,3 +6,22 @@ Content-Type: application/json
   "email": "[ali@example.com](mailto:ali@example.com)",
   "phone": "03001234567"
 }
+
+###
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+    "email": "john@example.com",
+    "phone": "03001234567",
+    "password": "123456"
+}
+
+###
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "123456"
+}
