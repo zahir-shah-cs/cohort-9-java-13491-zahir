@@ -1,7 +1,8 @@
 package com.zahir.contactmanagement.service;
 
-import com.zahir.contactmanagement.entity.Contact;
+import com.zahir.contactmanagement.exception.ResourceNotFoundException;
 import com.zahir.contactmanagement.entity.User;
+import com.zahir.contactmanagement.entity.Contact;
 import com.zahir.contactmanagement.repository.ContactRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -112,7 +113,7 @@ public class ContactService {
                             user.getId()
                     );
 
-                    return new RuntimeException(
+                    return new ResourceNotFoundException(
                             "Contact not found"
                     );
                 });
@@ -147,7 +148,7 @@ public class ContactService {
                                     user.getId()
                             );
 
-                            return new RuntimeException(
+                            return new ResourceNotFoundException(
                                     "Contact not found"
                             );
                         });
@@ -203,7 +204,7 @@ public class ContactService {
                                     user.getId()
                             );
 
-                            return new RuntimeException(
+                            return new ResourceNotFoundException(
                                     "Contact not found"
                             );
                         });

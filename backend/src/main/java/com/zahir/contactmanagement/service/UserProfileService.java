@@ -1,5 +1,6 @@
 package com.zahir.contactmanagement.service;
 
+import com.zahir.contactmanagement.exception.BadRequestException;
 import com.zahir.contactmanagement.DTOs.ChangePasswordRequest;
 import com.zahir.contactmanagement.DTOs.UserProfileResponse;
 import com.zahir.contactmanagement.entity.User;
@@ -88,7 +89,7 @@ public class UserProfileService {
                     "Password change failed. Current password incorrect. userId={}",
                     user.getId()
             );
-            throw new RuntimeException(
+            throw new BadRequestException(
                     "Current password is incorrect"
             );
         }
