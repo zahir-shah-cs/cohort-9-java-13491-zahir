@@ -7,11 +7,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @Service
 public class ContactService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
     private final ContactRepository contactRepository;
 
     public ContactService(ContactRepository contactRepository) {
@@ -23,7 +26,13 @@ public class ContactService {
     // =========================
     public Contact createPublicContact(Contact contact) {
         contact.setUser(null);
-        return contactRepository.save(contact);
+
+        Contact savedContact = contactRepository.save(contact);
+        logger.info(
+                "Public contact submitted successfully. contactId={}",
+                savedContact.getId()
+        );
+        return savedContact;
     }
 
     // =========================
@@ -35,7 +44,16 @@ public class ContactService {
     {
         // Associate contact with logged-in user
         contact.setUser(user);
-        return contactRepository.save(contact);
+        Contact savedContact =
+                contactRepository.save(contact);
+
+        logger.info(
+                "Contact created. contactId={}, userId={}",
+                savedContact.getId(),
+                user.getId()
+        );
+
+        return savedContact;
     }
 
     // GET ALL + SEARCH + PAGINATION
@@ -53,6 +71,14 @@ public class ContactService {
             );
         }
 
+        logger.info(
+                "Fetching contacts. userId={}, page={}, size={}, search={}",
+                user.getId(),
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                search
+        );
+
         return contactRepository
                 .findByUserIdAndNameContainingIgnoreCase(
                         user.getId(),
@@ -66,15 +92,30 @@ public class ContactService {
             Long contactId,
             User user
     ) {
+
+
+        logger.info(
+                "Fetching contact. contactId={}, userId={}",
+                contactId,
+                user.getId()
+        );
         return contactRepository
                 .findByIdAndUserId(
                         contactId,
                         user.getId()
                 )
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Contact not found"
-                        ));
+                .orElseThrow(()  -> {
+
+                    logger.warn(
+                            "Contact not found. contactId={}, userId={}",
+                            contactId,
+                            user.getId()
+                    );
+
+                    return new RuntimeException(
+                            "Contact not found"
+                    );
+                });
     }
 
 
@@ -86,16 +127,30 @@ public class ContactService {
             User user
     ) {
 
+        logger.info(
+                "Updating contact. contactId={}, userId={}",
+                contactId,
+                user.getId()
+        );
+
         Contact existingContact =
                 contactRepository
                         .findByIdAndUserId(
                                 contactId,
                                 user.getId()
                         )
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Contact not found"
-                                ));
+                        .orElseThrow(() -> {
+
+                            logger.warn(
+                                    "Contact update failed. Contact not found. contactId={}, userId={}",
+                                    contactId,
+                                    user.getId()
+                            );
+
+                            return new RuntimeException(
+                                    "Contact not found"
+                            );
+                        });
 
         existingContact.setName(
                 contactData.getName()
@@ -107,6 +162,12 @@ public class ContactService {
 
         existingContact.setPhone(
                 contactData.getPhone()
+        );
+
+        logger.info(
+                "Contact updated successfully. contactId={}, userId={}",
+                contactId,
+                user.getId()
         );
 
         return contactRepository.save(
@@ -122,18 +183,38 @@ public class ContactService {
             User user
     ) {
 
+        logger.info(
+                "Deleting contact. contactId={}, userId={}",
+                contactId,
+                user.getId()
+        );
+
         Contact contact =
                 contactRepository
                         .findByIdAndUserId(
                                 contactId,
                                 user.getId()
                         )
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Contact not found"
-                                ));
+                        .orElseThrow(() -> {
+
+                            logger.warn(
+                                    "Contact deletion failed. Contact not found. contactId={}, userId={}",
+                                    contactId,
+                                    user.getId()
+                            );
+
+                            return new RuntimeException(
+                                    "Contact not found"
+                            );
+                        });
 
         contactRepository.delete(contact);
+
+        logger.info(
+                "Contact deleted successfully. contactId={}, userId={}",
+                contactId,
+                user.getId()
+        );
     }
 
 }

@@ -15,12 +15,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 @RestController
 @RequestMapping("/api/user-contacts")
 public class UserContactController {
 
     private final ContactService contactService;
-
+    private static final Logger logger =
+            LoggerFactory.getLogger(UserContactController.class);
     public UserContactController(ContactService contactService) {
         this.contactService = contactService;
     }

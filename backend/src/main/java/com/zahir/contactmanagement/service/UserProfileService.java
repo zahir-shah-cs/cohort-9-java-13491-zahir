@@ -7,11 +7,16 @@ import com.zahir.contactmanagement.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class UserProfileService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final Logger logger =
+            LoggerFactory.getLogger(UserProfileService.class);
 
     public UserProfileService(
             UserRepository userRepository,
@@ -23,7 +28,10 @@ public class UserProfileService {
 
     // GET PROFILE
     public UserProfileResponse getProfile(User user) {
-
+        logger.info(
+                "Fetching user profile. userId={}",
+                user.getId()
+        );
         return new UserProfileResponse(
                 user.getId(),
                 user.getEmail(),
@@ -38,11 +46,19 @@ public class UserProfileService {
             String email,
             String phone
     ) {
+        logger.info(
+                "Updating user profile. userId={}",
+                user.getId()
+        );
 
         user.setEmail(email);
         user.setPhone(phone);
 
         User updatedUser = userRepository.save(user);
+        logger.info(
+                "User profile updated successfully. userId={}",
+                user.getId()
+        );
 
         return new UserProfileResponse(
                 updatedUser.getId(),
@@ -58,12 +74,20 @@ public class UserProfileService {
             ChangePasswordRequest request
     ) {
 
+        logger.info(
+                "Password change requested. userId={}",
+                user.getId()
+        );
+
         // Check current password
         if (!passwordEncoder.matches(
                 request.getCurrentPassword(),
                 user.getPassword()
         )) {
-
+            logger.warn(
+                    "Password change failed. Current password incorrect. userId={}",
+                    user.getId()
+            );
             throw new RuntimeException(
                     "Current password is incorrect"
             );
@@ -78,5 +102,9 @@ public class UserProfileService {
         user.setPassword(encodedPassword);
 
         userRepository.save(user);
+        logger.info(
+                "Password changed successfully. userId={}",
+                user.getId()
+        );
     }
 }

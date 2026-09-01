@@ -7,12 +7,16 @@ import com.zahir.contactmanagement.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private static final Logger logger =
+            LoggerFactory.getLogger(AuthService.class);
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder
@@ -22,6 +26,10 @@ public class AuthService {
     }
 
     public User register(RegisterRequest request) {
+        logger.info(
+                "New user registration attempt. email={}",
+                request.getEmail()
+        );
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
@@ -40,8 +48,12 @@ public class AuthService {
         user.setPassword(
                 passwordEncoder.encode(request.getPassword())
         );
-
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        logger.info(
+                "User registered successfully. userId={}",
+                savedUser.getId()
+        );
+        return savedUser;
     }
 
     public User login(LoginRequest request) {
@@ -56,9 +68,19 @@ public class AuthService {
                 request.getPassword(),
                 user.getPassword()
         )) {
+
+            logger.warn(
+                    "Login failed. Invalid credentials. email={}",
+                    request.getEmail()
+            );
+
             throw new RuntimeException("Invalid email or password");
         }
 
+        logger.info(
+                "User login successful. userId={}",
+                user.getId()
+        );
         return user;
     }
 }
