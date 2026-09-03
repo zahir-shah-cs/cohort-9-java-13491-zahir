@@ -48,3 +48,8 @@ Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJqb2huQGV4YW1wbGUuY29tIiwia
 GET http://localhost:8080/api/profile
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyQGdtYWlsLmNvbSIsImlhdCI6MTc4Nzg2NjQyNiwiZXhwIjoxNzg3ODcwMDI2fQ.mk86El9nnUacIw_nYdg5tNHTDcwuhR4SlradPrWZDXTsJZkgCZTgIYqXhHXMp2Vt
+
+###
+GET http://localhost:8080/api/user-contacts/export
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c2VyQGdtYWlsLmNvbSIsImlhdCI6MTc4ODQxNzM4MiwiZXhwIjoxNzg4NDIwOTgyfQ.j7OU3JPJ0muB8SQqMyoBR0oKNFOvH0XIqWCifpX9qSlPENhMAfaa5eeiwFc0ftzT

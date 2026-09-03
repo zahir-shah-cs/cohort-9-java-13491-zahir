@@ -27,6 +27,39 @@ const contactService = {
   deleteContact: async (id) => {
     await Api.delete(`/user-contacts/${id}`);
   },
+
+  // EXPORT
+  exportContacts: async () => {
+    const response = await Api.get(
+      "/user-contacts/export",
+      {
+        responseType: "blob",
+      }
+    );
+
+    return response.data;
+  },
+
+   // IMPORT
+  importContacts: async (file) => {
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    const response = await Api.post(
+      "/user-contacts/import",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  },
+
 };
 
 export default contactService;

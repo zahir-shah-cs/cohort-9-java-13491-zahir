@@ -34,7 +34,10 @@ function ContactList() {
   });
 
   const [saving, setSaving] = useState(false);
-
+  
+  // file
+  const [importFile, setImportFile] = useState(null);
+  const [importing, setImporting] = useState(false);
 
   // =========================
   // GET CONTACTS
@@ -79,6 +82,98 @@ function ContactList() {
     fetchContacts();
 
   }, [page, search]);
+
+  
+  // =========================
+  // Handle Export
+  // =========================
+
+  const handleExport = async () => {
+    try {
+
+      setError("");
+
+      const blob =
+        await contactService.exportContacts();
+
+      const url =
+        window.URL.createObjectURL(blob);
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+      link.download = "contacts.csv";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+
+      console.error(
+        "Error exporting contacts:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+        "Failed to export contacts."
+      );
+    }
+  };
+
+   
+  // =========================
+  // Handle Import
+  // =========================
+
+  const handleImport = async () => {
+
+    if (!importFile) {
+      setError("Please select a CSV file.");
+      return;
+    }
+
+    try {
+
+      setImporting(true);
+      setError("");
+
+      const message =
+        await contactService.importContacts(
+          importFile
+        );
+
+      console.log(message);
+
+      setImportFile(null);
+
+      // Refresh contact list
+      await fetchContacts();
+
+    } catch (error) {
+
+      console.error(
+        "Error importing contacts:",
+        error
+      );
+
+      setError(
+        error.response?.data?.message ||
+        "Failed to import contacts."
+      );
+
+    } finally {
+
+      setImporting(false);
+
+    }
+  };
 
 
   // =========================
@@ -287,12 +382,62 @@ function ContactList() {
 
           </div>
 
-          <button
-            onClick={handleCreate}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            + Add Contact
-          </button>
+          <div className="flex gap-2">
+
+            <button
+              onClick={handleExport}
+              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+            >
+              Export CSV
+            </button>
+
+            <button
+              onClick={() => {
+                // open your add contact form/modal
+              }}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              + Add Contact
+            </button>
+
+          </div>
+
+        </div>
+
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4">
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+
+            <input
+              type="file"
+              accept=".csv"
+              onChange={(e) =>
+                setImportFile(e.target.files[0])
+              }
+              className="block w-full text-sm text-gray-600
+                        file:mr-4 file:rounded-lg
+                        file:border-0 file:bg-gray-100
+                        file:px-4 file:py-2
+                        file:text-sm file:font-medium
+                        file:text-gray-700
+                        hover:file:bg-gray-200"
+            />
+
+            <button
+              onClick={handleImport}
+              disabled={!importFile || importing}
+              className="rounded-lg bg-green-600 px-4 py-2
+                        text-sm font-medium text-white
+                        hover:bg-green-700
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50"
+            >
+              {importing
+                ? "Importing..."
+                : "Import CSV"}
+            </button>
+
+          </div>
 
         </div>
 

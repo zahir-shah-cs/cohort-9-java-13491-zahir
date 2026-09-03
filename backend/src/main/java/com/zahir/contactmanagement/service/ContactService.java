@@ -8,9 +8,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.List;
+
 
 @Service
 public class ContactService {
@@ -216,6 +224,183 @@ public class ContactService {
                 contactId,
                 user.getId()
         );
+    }
+
+
+    // =========================
+    // EXPORT CONTACTS
+    // =========================
+
+    public String exportContacts(User user) {
+
+        logger.info(
+                "Exporting contacts. userId={}",
+                user.getId()
+        );
+
+        List<Contact> contacts =
+                contactRepository.findByUserId(user.getId());
+
+        StringBuilder csv = new StringBuilder();
+
+        // CSV header
+        csv.append("name,email,phone\n");
+
+        for (Contact contact : contacts) {
+
+            csv.append(escapeCsv(contact.getName()))
+                    .append(",")
+                    .append(escapeCsv(contact.getEmail()))
+                    .append(",")
+                    .append(escapeCsv(contact.getPhone()))
+                    .append("\n");
+        }
+
+        logger.info(
+                "Contacts exported successfully. userId={}, count={}",
+                user.getId(),
+                contacts.size()
+        );
+
+        return csv.toString();
+    }
+
+    // =========================
+    // IMPORT CONTACTS
+    // =========================
+
+    public int importContacts(
+            InputStream inputStream,
+            User user
+    ) throws IOException {
+
+        logger.info(
+                "Importing contacts. userId={}",
+                user.getId()
+        );
+
+        int importedCount = 0;
+
+        try (
+                BufferedReader reader =
+                        new BufferedReader(
+                                new InputStreamReader(
+                                        inputStream,
+                                        StandardCharsets.UTF_8
+                                )
+                        )
+        ) {
+
+            String header = reader.readLine();
+
+            if (header == null) {
+                throw new RuntimeException(
+                        "CSV file is empty."
+                );
+            }
+
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+
+                String[] values = parseCsvLine(line);
+
+                if (values.length != 3) {
+                    throw new RuntimeException(
+                            "Invalid CSV format. Expected: name,email,phone"
+                    );
+                }
+
+                Contact contact = new Contact();
+
+                contact.setName(values[0].trim());
+                contact.setEmail(values[1].trim());
+                contact.setPhone(values[2].trim());
+
+                // Associate with authenticated user
+                contact.setUser(user);
+
+                contactRepository.save(contact);
+
+                importedCount++;
+            }
+        }
+
+        logger.info(
+                "Contacts imported successfully. userId={}, count={}",
+                user.getId(),
+                importedCount
+        );
+
+        return importedCount;
+    }
+
+    private String[] parseCsvLine(String line) {
+
+        List<String> values = new ArrayList<>();
+
+        StringBuilder current = new StringBuilder();
+
+        boolean insideQuotes = false;
+
+        for (int i = 0; i < line.length(); i++) {
+
+            char character = line.charAt(i);
+
+            if (character == '"') {
+
+                if (insideQuotes &&
+                        i + 1 < line.length() &&
+                        line.charAt(i + 1) == '"') {
+
+                    current.append('"');
+                    i++;
+
+                } else {
+
+                    insideQuotes = !insideQuotes;
+                }
+
+            } else if (
+                    character == ',' &&
+                            !insideQuotes
+            ) {
+
+                values.add(current.toString());
+                current.setLength(0);
+
+            } else {
+
+                current.append(character);
+            }
+        }
+
+        values.add(current.toString());
+
+        return values.toArray(new String[0]);
+    }
+
+
+    private String escapeCsv(String value) {
+
+        if (value == null) {
+            return "";
+        }
+
+        if (value.contains(",") ||
+                value.contains("\"") ||
+                value.contains("\n")) {
+
+            return "\"" +
+                    value.replace("\"", "\"\"") +
+                    "\"";
+        }
+
+        return value;
     }
 
 }

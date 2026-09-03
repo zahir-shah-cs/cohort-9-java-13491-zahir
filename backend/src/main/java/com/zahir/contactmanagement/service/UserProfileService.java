@@ -4,6 +4,7 @@ import com.zahir.contactmanagement.exception.BadRequestException;
 import com.zahir.contactmanagement.DTOs.ChangePasswordRequest;
 import com.zahir.contactmanagement.DTOs.UserProfileResponse;
 import com.zahir.contactmanagement.entity.User;
+import com.zahir.contactmanagement.exception.ResourceNotFoundException;
 import com.zahir.contactmanagement.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,30 @@ public class UserProfileService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // GET USER
+    public User getUserByEmail(String userEmail) {
+
+        logger.info(
+                "Fetching user. userEmail={}",
+                userEmail
+        );
+
+        return userRepository
+                .findByEmail(userEmail)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "User not found"
+                        )
+                );
+    }
+
     // GET PROFILE
     public UserProfileResponse getProfile(User user) {
         logger.info(
                 "Fetching user profile. userId={}",
                 user.getId()
         );
+
         return new UserProfileResponse(
                 user.getId(),
                 user.getEmail(),

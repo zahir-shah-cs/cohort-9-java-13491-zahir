@@ -4,11 +4,13 @@ import com.zahir.contactmanagement.entity.Contact;
 import com.zahir.contactmanagement.entity.User;
 import com.zahir.contactmanagement.service.ContactService;
 
+import com.zahir.contactmanagement.service.UserProfileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -18,16 +20,22 @@ import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/user-contacts")
 public class UserContactController {
 
     private final ContactService contactService;
+    private final UserProfileService userProfileService;
     private static final Logger logger =
             LoggerFactory.getLogger(UserContactController.class);
-    public UserContactController(ContactService contactService) {
+    public UserContactController(ContactService contactService, UserProfileService userProfileService) {
         this.contactService = contactService;
+        this.userProfileService = userProfileService;
     }
 
     // CREATE
@@ -131,5 +139,62 @@ public class UserContactController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+
+    // EXPORT CONTACTS
+    @GetMapping("/export")
+    public ResponseEntity<String> exportContacts(
+            Authentication authentication
+    ) {
+
+        User user = (User) authentication.getPrincipal();
+
+        String csv = contactService.exportContacts(user);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=contacts.csv"
+                )
+                .contentType(
+                        MediaType.parseMediaType(
+                                "text/csv"
+                        )
+                )
+                .body(csv);
+    }
+
+    // IMPORT CONTACTS
+    @PostMapping(
+            value = "/import",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<String> importContacts(
+            @RequestParam("file") MultipartFile file,
+            Authentication authentication
+    ) throws IOException {
+
+        if (file.isEmpty()) {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body("Please upload a CSV file.");
+        }
+
+        User autUser = (User) authentication.getPrincipal();
+
+        User user = userProfileService.getUserByEmail(autUser.getEmail());
+
+        int importedCount =
+                contactService.importContacts(
+                        file.getInputStream(),
+                        user
+                );
+
+        return ResponseEntity.ok(
+                importedCount +
+                        " contacts imported successfully."
+        );
     }
 }
